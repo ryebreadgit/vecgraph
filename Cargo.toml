@@ -1,0 +1,42 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/vecgraph",
+    "crates/vecgraph-core",
+    "crates/vecgraph-store",
+    "crates/vecgraph-embed-onnx",
+    "crates/vecgraph-enrich-llm",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["RyeBread <info@rye.moe>"]
+license = "MIT"
+repository = "https://github.com/ryebreadgit/vecgraph"
+
+[workspace.dependencies]
+# Internal
+vecgraph-core = { path = "crates/vecgraph-core" }
+vecgraph-store = { path = "crates/vecgraph-store" }
+vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx" }
+vecgraph-enrich-llm = { path = "crates/vecgraph-enrich-llm" }
+
+# External
+kvwrap = { git = "https://github.com/ryebreadgit/kvwrap", features = ["client"] }
+bytemuck = "1.25"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+ort = { version = "2.0.0-rc.12", default-features = false, features = ["download-binaries", "copy-dylibs", "ndarray", "std", "tls-rustls"] }
+ndarray = "0.17"
+tokenizers = "0.22"
+minreq = { version = "2.14", features = ["https-rustls"] }
+thiserror = "2"
+anyhow = "1.0"
+async-trait = "0.1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true

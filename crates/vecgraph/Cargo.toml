@@ -1,0 +1,17 @@
+[package]
+name = "vecgraph"
+version.workspace = true
+edition.workspace = true
+description = "Fast and efficient vector graph database built on top of kvwrap."
+
+[features]
+default = []
+embed-onnx = ["dep:vecgraph-embed-onnx"]
+enrich-llm = ["dep:vecgraph-enrich-llm", "embed-onnx"]
+full = ["embed-onnx", "enrich-llm"]
+
+[dependencies]
+vecgraph-core.workspace = true
+vecgraph-store.workspace = true
+vecgraph-embed-onnx = { workspace = true, optional = true }
+vecgraph-enrich-llm = { workspace = true, optional = true }
