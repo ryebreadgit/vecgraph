@@ -23,7 +23,7 @@ pub async fn search(
         request.top_k
     };
 
-    let mut heap = scan_vectors(store, &request.query_vec, &scan, fetch_k).await;
+    let heap = scan_vectors(store, &request.query_vec, &scan, fetch_k).await;
     let mut results: Vec<ScoredHit> = heap.into_sorted_vec();
 
     // Exclude hits whose node has a name in the exclude list (case-insensitive match)
