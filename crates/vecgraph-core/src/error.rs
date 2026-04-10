@@ -3,6 +3,8 @@ pub enum VecGraphError {
     DimensionMismatch { expected: usize, got: usize },
     EmbedderError(String),
     EmptyQuery,
+    StorageError(String),
+    SerializationError(String),
     Other(String),
 }
 
@@ -15,6 +17,8 @@ impl std::fmt::Display for VecGraphError {
             VecGraphError::EmbedderError(msg) => write!(f, "Embedder error: {}", msg),
             VecGraphError::Other(msg) => write!(f, "Error: {}", msg),
             VecGraphError::EmptyQuery => write!(f, "Query is empty"),
+            VecGraphError::StorageError(msg) => write!(f, "Storage error: {}", msg),
+            VecGraphError::SerializationError(msg) => write!(f, "Serialization error: {}", msg),
         }
     }
 }

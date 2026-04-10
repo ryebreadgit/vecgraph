@@ -1,5 +1,3 @@
-// crates/vecgraph-core/src/graph.rs
-
 use crate::{
     Edge, EdgeId, EdgeWithVector, Node, NodeId, SearchQuery, SearchResult, error::VecGraphError,
 };

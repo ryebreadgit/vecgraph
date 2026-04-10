@@ -83,6 +83,7 @@ impl Edge {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EdgeWithVector {
     pub edge: Edge,
     pub vector: Vec<f32>,
