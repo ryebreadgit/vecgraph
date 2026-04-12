@@ -7,9 +7,11 @@ description = "Fast and efficient vector graph database built on top of kvwrap."
 [features]
 default = []
 embed-onnx = ["dep:vecgraph-embed-onnx"]
-full = ["embed-onnx"]
+embed-model2vec = ["dep:vecgraph-embed-model2vec"]
+full = ["embed-onnx", "embed-model2vec"]
 
 [dependencies]
 vecgraph-core.workspace = true
 vecgraph-store.workspace = true
 vecgraph-embed-onnx = { workspace = true, optional = true }
+vecgraph-embed-model2vec = { workspace = true, optional = true }

@@ -1,5 +1,5 @@
 [package]
-name = "vecgraph-embed-onnx"
+name = "vecgraph-embed-model2vec"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,6 +7,5 @@ license.workspace = true
 
 [dependencies]
 vecgraph-core.workspace = true
-ort.workspace = true
-ndarray.workspace = true
-tokenizers.workspace = true
+serde.workspace = true
+model2vec-rs.workspace = true

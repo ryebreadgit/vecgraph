@@ -4,6 +4,7 @@ members = [
     "crates/vecgraph",
     "crates/vecgraph-core",
     "crates/vecgraph-store",
+    "crates/vecgraph-embed-model2vec",
     "crates/vecgraph-embed-onnx",
 ]
 
@@ -18,8 +19,8 @@ repository = "https://github.com/ryebreadgit/vecgraph"
 # Internal
 vecgraph-core = { path = "crates/vecgraph-core" }
 vecgraph-store = { path = "crates/vecgraph-store" }
+vecgraph-embed-model2vec = { path = "crates/vecgraph-embed-model2vec" }
 vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx" }
-vecgraph-enrich-llm = { path = "crates/vecgraph-enrich-llm" }
 
 # External
 kvwrap = { git = "https://github.com/ryebreadgit/kvwrap", features = ["client"] }
@@ -33,6 +34,7 @@ minreq = { version = "2.14", features = ["https-rustls"] }
 thiserror = "2"
 anyhow = "1.0"
 async-trait = "0.1"
+model2vec-rs = "0.1"
 
 [profile.release]
 opt-level = "z"
