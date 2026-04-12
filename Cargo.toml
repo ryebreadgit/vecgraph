@@ -5,7 +5,6 @@ members = [
     "crates/vecgraph-core",
     "crates/vecgraph-store",
     "crates/vecgraph-embed-onnx",
-    "crates/vecgraph-enrich-llm",
 ]
 
 [workspace.package]
