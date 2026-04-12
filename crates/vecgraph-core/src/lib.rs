@@ -15,4 +15,4 @@ pub use search::{
     RerankParams, ScoredHit, SearchQuery, SearchResult, build_base_vector, cosine_distance,
     normalize,
 };
-pub use traits::{Embedder, Enricher};
+pub use traits::Embedder;
