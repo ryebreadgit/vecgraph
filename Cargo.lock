@@ -2677,7 +2677,6 @@ name = "vecgraph-embed-model2vec"
 version = "0.1.0"
 dependencies = [
  "model2vec-rs",
- "serde",
  "vecgraph-core",
 ]
 
@@ -2695,11 +2694,9 @@ dependencies = [
 name = "vecgraph-store"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-trait",
  "bytemuck",
  "kvwrap",
- "serde",
  "serde_json",
  "vecgraph-core",
 ]

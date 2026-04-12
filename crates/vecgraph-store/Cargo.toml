@@ -8,8 +8,6 @@ license.workspace = true
 [dependencies]
 vecgraph-core.workspace = true
 kvwrap.workspace = true
-serde.workspace = true
 serde_json.workspace = true
-anyhow.workspace = true
 bytemuck.workspace = true
 async-trait.workspace = true
