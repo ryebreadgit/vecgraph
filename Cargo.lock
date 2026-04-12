@@ -100,19 +100,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-compat"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1ba85bc55464dcbf728b56d97e119d673f4cf9062be330a9a26f3acf504a590"
-dependencies = [
- "futures-core",
- "futures-io",
- "once_cell",
- "pin-project-lite",
- "tokio",
-]
-
-[[package]]
 name = "async-task"
 version = "4.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -720,10 +707,7 @@ version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f78e10609fe0e0b3f4157ffab1876319b5b0db102a2c60dc4626306dc46b44ad"
 dependencies = [
- "fastrand",
  "futures-core",
- "futures-io",
- "parking",
  "pin-project-lite",
 ]
 
@@ -1168,25 +1152,8 @@ name = "kvwrap"
 version = "0.1.0"
 source = "git+https://github.com/ryebreadgit/kvwrap#3d68e7463863d64a85aa0e5472d47192ce876944"
 dependencies = [
- "kvwrap-client",
  "kvwrap-core",
  "kvwrap-distributed",
-]
-
-[[package]]
-name = "kvwrap-client"
-version = "0.1.0"
-source = "git+https://github.com/ryebreadgit/kvwrap#3d68e7463863d64a85aa0e5472d47192ce876944"
-dependencies = [
- "async-channel",
- "async-compat",
- "async-trait",
- "blocking",
- "futures-lite",
- "kvwrap-core",
- "kvwrap-proto",
- "tonic",
- "tracing",
 ]
 
 [[package]]
