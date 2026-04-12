@@ -1,28 +1,17 @@
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum VecGraphError {
+    #[error("Dimension mismatch: expected {expected}, got {got}")]
     DimensionMismatch { expected: usize, got: usize },
+    #[error("Embedder error: {0}")]
     EmbedderError(String),
+    #[error("Query is empty")]
     EmptyQuery,
+    #[error("Storage error: {0}")]
     StorageError(String),
+    #[error("Serialization error: {0}")]
     SerializationError(String),
+    #[error("Tokenizer error: {0}")]
     TokenizerError(String),
+    #[error("Error: {0}")]
     Other(String),
 }
-
-impl std::fmt::Display for VecGraphError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            VecGraphError::DimensionMismatch { expected, got } => {
-                write!(f, "Dimension mismatch: expected {}, got {}", expected, got)
-            }
-            VecGraphError::EmbedderError(msg) => write!(f, "Embedder error: {}", msg),
-            VecGraphError::TokenizerError(msg) => write!(f, "Tokenizer error: {}", msg),
-            VecGraphError::Other(msg) => write!(f, "Error: {}", msg),
-            VecGraphError::EmptyQuery => write!(f, "Query is empty"),
-            VecGraphError::StorageError(msg) => write!(f, "Storage error: {}", msg),
-            VecGraphError::SerializationError(msg) => write!(f, "Serialization error: {}", msg),
-        }
-    }
-}
-
-impl std::error::Error for VecGraphError {}
