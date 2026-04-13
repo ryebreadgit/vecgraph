@@ -34,7 +34,7 @@ pub async fn search(
 
     // Re-rank if requested, then sort by new score
     if let Some(rerank) = &request.rerank {
-        rerank_results(store, &mut results, rerank, request.search_kind.clone()).await;
+        rerank_results(store, &mut results, rerank).await;
         results.sort_by(|a, b| {
             a.score
                 .partial_cmp(&b.score)
@@ -99,7 +99,7 @@ async fn scan_vectors(
                     node_id_bytes: node_id,
                     kind: scan.kind.clone(),
                     score: dist,
-                    hit_kind: VectorScanQuery::search_kind_from_partition(&&partition)
+                    hit_kind: VectorScanQuery::search_kind_from_partition(&partition)
                         .unwrap_or(SearchKind::All),
                 });
             }
@@ -142,25 +142,33 @@ async fn rerank_results(
     store: &VecGraphStore,
     results: &mut [ScoredHit],
     rerank: &vecgraph_core::RerankParams,
-    search_kind: SearchKind,
 ) {
-    let rerank_scan = VectorScanQuery {
-        kind: rerank.kind.clone(),
-        namespace: None, // re-rank across all namespaces
-        search_kind: search_kind.clone(),
+    let rerank_prefix = {
+        // Build prefix from the rerank kind, no namespace constraint
+        let scan = VectorScanQuery {
+            kind: rerank.kind.clone(),
+            namespace: None,
+            search_kind: SearchKind::All, // doesn't matter, we pick partition per-hit
+        };
+        scan.scan_prefix()
     };
-    let rerank_prefix = rerank_scan.scan_prefix();
 
     for hit in results.iter_mut() {
         let node_id_str = String::from_utf8_lossy(&hit.node_id_bytes);
         let rerank_key = format!("{}{}", rerank_prefix, node_id_str);
-        for partition in rerank_scan.partitions() {
-            if let Ok(Some(bytes)) = store.kv.get(&partition, rerank_key.as_bytes()).await {
-                if let Ok(rerank_vec) = bytemuck::try_cast_slice::<u8, f32>(&bytes) {
-                    if rerank_vec.len() == rerank.vector.len() {
-                        let rerank_dist = cosine_distance(&rerank.vector, rerank_vec);
-                        hit.score = (1.0 - rerank.weight) * hit.score + rerank.weight * rerank_dist;
-                    }
+
+        // Use the partition that matches the hit kind (node or edge)
+        let partition = match hit.hit_kind {
+            SearchKind::Node => "node_vectors",
+            SearchKind::Edge => "edge_vectors",
+            SearchKind::All => continue, // shouldn't happen on a real hit
+        };
+
+        if let Ok(Some(bytes)) = store.kv.get(partition, rerank_key.as_bytes()).await {
+            if let Ok(rerank_vec) = bytemuck::try_cast_slice::<u8, f32>(&bytes) {
+                if rerank_vec.len() == rerank.vector.len() {
+                    let rerank_dist = cosine_distance(&rerank.vector, rerank_vec);
+                    hit.score = (1.0 - rerank.weight) * hit.score + rerank.weight * rerank_dist;
                 }
             }
         }
