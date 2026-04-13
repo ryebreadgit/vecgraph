@@ -1,18 +1,23 @@
 use crate::VecGraphStore;
 use vecgraph_core::{Node, NodeId, NodeWithVector, StorageKey, VecGraphError};
 
-pub async fn insert_node(
-    store: &VecGraphStore,
-    node_with_vector: &NodeWithVector,
-) -> Result<(), VecGraphError> {
-    let node_key = StorageKey::Node(node_with_vector.node.id.clone());
-    let node_bytes = serde_json::to_vec(&node_with_vector.node)
-        .map_err(|e| VecGraphError::SerializationError(e.to_string()))?;
+pub async fn insert_node(store: &VecGraphStore, node: &Node) -> Result<(), VecGraphError> {
+    let node_key = StorageKey::Node(node.id.clone());
+    let node_bytes =
+        serde_json::to_vec(&node).map_err(|e| VecGraphError::SerializationError(e.to_string()))?;
     store
         .kv
         .set(node_key.partition(), node_key.key().as_bytes(), &node_bytes)
         .await
         .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
+    Ok(())
+}
+
+pub async fn insert_node_with_vector(
+    store: &VecGraphStore,
+    node_with_vector: &NodeWithVector,
+) -> Result<(), VecGraphError> {
+    insert_node(store, &node_with_vector.node).await?;
     // Store vector separately under `vector:{kind}:{namespace?}:{node_id}`
     let vec_key = StorageKey::NodeVector {
         kind: node_with_vector.node.kind.clone(),
@@ -25,9 +30,9 @@ pub async fn insert_node(
         .set(vec_key.partition(), vec_key.key().as_bytes(), vec_bytes)
         .await
         .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
-
     Ok(())
 }
+
 pub async fn get_node(store: &VecGraphStore, id: &NodeId) -> Result<Option<Node>, VecGraphError> {
     let key = StorageKey::Node(id.clone());
     if let Some(value) = store
@@ -111,4 +116,26 @@ pub async fn delete_name_mapping(
         .await
         .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
     Ok(())
+}
+
+pub async fn get_node_vector(
+    store: &VecGraphStore,
+    id: &NodeId,
+) -> Result<Option<Vec<f32>>, VecGraphError> {
+    let vec_key = StorageKey::NodeVector {
+        kind: "".to_string(), // Kind is not needed for retrieval
+        namespace: None,      // Namespace is not needed for retrieval
+        node_id: id.clone(),
+    };
+    if let Some(vec_bytes) = store
+        .kv
+        .get(vec_key.partition(), vec_key.key().as_bytes())
+        .await
+        .map_err(|e| VecGraphError::StorageError(e.to_string()))?
+    {
+        let vector = bytemuck::cast_slice::<u8, f32>(&vec_bytes).to_vec();
+        Ok(Some(vector))
+    } else {
+        Ok(None)
+    }
 }

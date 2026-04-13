@@ -6,17 +6,34 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait GraphStore: Send + Sync {
-    async fn insert_node(&self, node: &NodeWithVector) -> Result<(), VecGraphError>;
+    async fn insert_node(&self, node: &Node) -> Result<(), VecGraphError>;
+
+    async fn insert_node_with_vector(&self, node: &NodeWithVector) -> Result<(), VecGraphError>;
+
+    async fn insert_nodes_with_vector(
+        &self,
+        nodes: &[NodeWithVector],
+    ) -> Result<(), VecGraphError> {
+        for node in nodes {
+            self.insert_node_with_vector(node).await?;
+        }
+        Ok(())
+    }
 
     async fn get_node(&self, id: &NodeId) -> Result<Option<Node>, VecGraphError>;
 
     async fn delete_node(&self, id: &NodeId) -> Result<(), VecGraphError>;
 
-    async fn insert_edge(&self, edge: &EdgeWithVector) -> Result<(), VecGraphError>;
+    async fn insert_edge(&self, edge: &Edge) -> Result<(), VecGraphError>;
 
-    async fn insert_edges(&self, edges: &[EdgeWithVector]) -> Result<(), VecGraphError> {
+    async fn insert_edge_with_vector(&self, edge: &EdgeWithVector) -> Result<(), VecGraphError>;
+
+    async fn insert_edges_with_vector(
+        &self,
+        edges: &[EdgeWithVector],
+    ) -> Result<(), VecGraphError> {
         for edge in edges {
-            self.insert_edge(edge).await?;
+            self.insert_edge_with_vector(edge).await?;
         }
         Ok(())
     }
@@ -27,7 +44,9 @@ pub trait GraphStore: Send + Sync {
 
     async fn delete_edge(&self, id: &EdgeId) -> Result<(), VecGraphError>;
 
-    async fn get_vector(&self, id: &EdgeId) -> Result<Option<Vec<f32>>, VecGraphError>;
+    async fn get_edge_vector(&self, id: &EdgeId) -> Result<Option<Vec<f32>>, VecGraphError>;
+
+    async fn get_node_vector(&self, id: &NodeId) -> Result<Option<Vec<f32>>, VecGraphError>;
 
     async fn set_name_mapping(
         &self,

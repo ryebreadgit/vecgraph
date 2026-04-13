@@ -1,19 +1,25 @@
 use crate::VecGraphStore;
 use vecgraph_core::{Edge, EdgeId, EdgeWithVector, Node, NodeId, StorageKey, VecGraphError};
 
-pub async fn insert_edge(
-    store: &VecGraphStore,
-    edge_with_vec: &EdgeWithVector,
-) -> Result<(), VecGraphError> {
-    // Store edge metadata
-    let edge_key = StorageKey::Edge(edge_with_vec.edge.id.clone());
-    let edge_bytes = serde_json::to_vec(&edge_with_vec.edge)
-        .map_err(|e| VecGraphError::SerializationError(e.to_string()))?;
+pub async fn insert_edge(store: &VecGraphStore, edge: &Edge) -> Result<(), VecGraphError> {
+    let edge_key = StorageKey::Edge(edge.id.clone());
+    let edge_bytes =
+        serde_json::to_vec(&edge).map_err(|e| VecGraphError::SerializationError(e.to_string()))?;
     store
         .kv
         .set(edge_key.partition(), edge_key.key().as_bytes(), &edge_bytes)
         .await
         .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
+
+    Ok(())
+}
+
+pub async fn insert_edge_with_vector(
+    store: &VecGraphStore,
+    edge_with_vec: &EdgeWithVector,
+) -> Result<(), VecGraphError> {
+    // Store edge metadata
+    insert_edge(store, &edge_with_vec.edge).await?;
 
     // Store vector separately under `vector:{edge_kind}:{namespace?}:{node_id}`
     let namespace = match get_node_namespace(store, &edge_with_vec.edge.source_node_id).await {

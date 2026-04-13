@@ -1,6 +1,7 @@
 use crate::{
     delete_edge, delete_name_mapping, delete_node, get_edge, get_edge_vector, get_edges_for_node,
-    get_name_mapping, get_node, insert_edge, insert_node, search, set_name_mapping,
+    get_name_mapping, get_node, get_node_vector, insert_edge, insert_edge_with_vector, insert_node,
+    insert_node_with_vector, search, set_name_mapping,
 };
 use async_trait::async_trait;
 use kvwrap::KvStore;
@@ -15,12 +16,21 @@ pub struct VecGraphStore {
 
 #[async_trait]
 impl GraphStore for VecGraphStore {
-    async fn insert_node(&self, node: &NodeWithVector) -> Result<(), VecGraphError> {
+    async fn insert_node(&self, node: &Node) -> Result<(), VecGraphError> {
         insert_node(self, node).await
     }
+    async fn insert_node_with_vector(&self, node: &NodeWithVector) -> Result<(), VecGraphError> {
+        insert_node_with_vector(self, node).await
+    }
+
     async fn get_node(&self, id: &NodeId) -> Result<Option<Node>, VecGraphError> {
         get_node(self, id).await
     }
+
+    async fn get_node_vector(&self, id: &NodeId) -> Result<Option<Vec<f32>>, VecGraphError> {
+        get_node_vector(self, id).await
+    }
+
     async fn delete_node(&self, id: &NodeId) -> Result<(), VecGraphError> {
         // Cascade: delete all edges first, then the node
         let edges = get_edges_for_node(self, id).await?;
@@ -29,8 +39,11 @@ impl GraphStore for VecGraphStore {
         }
         delete_node(self, id).await
     }
-    async fn insert_edge(&self, edge: &EdgeWithVector) -> Result<(), VecGraphError> {
+    async fn insert_edge(&self, edge: &Edge) -> Result<(), VecGraphError> {
         insert_edge(self, edge).await
+    }
+    async fn insert_edge_with_vector(&self, edge: &EdgeWithVector) -> Result<(), VecGraphError> {
+        insert_edge_with_vector(self, edge).await
     }
     async fn get_edge(&self, id: &EdgeId) -> Result<Option<Edge>, VecGraphError> {
         get_edge(self, id).await
@@ -41,7 +54,7 @@ impl GraphStore for VecGraphStore {
     async fn delete_edge(&self, id: &EdgeId) -> Result<(), VecGraphError> {
         delete_edge(self, id).await
     }
-    async fn get_vector(&self, id: &EdgeId) -> Result<Option<Vec<f32>>, VecGraphError> {
+    async fn get_edge_vector(&self, id: &EdgeId) -> Result<Option<Vec<f32>>, VecGraphError> {
         get_edge_vector(self, id).await
     }
     async fn set_name_mapping(
