@@ -122,20 +122,29 @@ pub async fn get_node_vector(
     store: &VecGraphStore,
     id: &NodeId,
 ) -> Result<Option<Vec<f32>>, VecGraphError> {
+    // We need the node's kind and namespace to reconstruct the vector key
+    let node = match get_node(store, id).await? {
+        Some(n) => n,
+        None => return Ok(None),
+    };
+
     let vec_key = StorageKey::NodeVector {
-        kind: "".to_string(), // Kind is not needed for retrieval
-        namespace: None,      // Namespace is not needed for retrieval
+        kind: node.kind,
+        namespace: node.namespace,
         node_id: id.clone(),
     };
-    if let Some(vec_bytes) = store
+
+    match store
         .kv
         .get(vec_key.partition(), vec_key.key().as_bytes())
         .await
         .map_err(|e| VecGraphError::StorageError(e.to_string()))?
     {
-        let vector = bytemuck::cast_slice::<u8, f32>(&vec_bytes).to_vec();
-        Ok(Some(vector))
-    } else {
-        Ok(None)
+        Some(bytes) => {
+            let vector: &[f32] = bytemuck::try_cast_slice(&bytes)
+                .map_err(|e| VecGraphError::SerializationError(e.to_string()))?;
+            Ok(Some(vector.to_vec()))
+        }
+        None => Ok(None),
     }
 }
