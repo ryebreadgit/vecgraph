@@ -1,10 +1,14 @@
-use crate::{EdgeId, NodeId};
+use crate::{EdgeId, NodeId, SearchKind};
 pub enum StorageKey {
     Node(NodeId),
+    NodeVector {
+        kind: String,
+        namespace: Option<String>,
+        node_id: NodeId,
+    },
 
     Edge(EdgeId),
-
-    Vector {
+    EdgeVector {
         edge_kind: String,
         namespace: Option<String>,
         node_id: NodeId,
@@ -23,8 +27,9 @@ impl StorageKey {
     pub fn partition(&self) -> &'static str {
         match self {
             StorageKey::Node(_) => "nodes",
+            StorageKey::NodeVector { .. } => "node_vectors",
             StorageKey::Edge(_) => "edges",
-            StorageKey::Vector { .. } => "vectors",
+            StorageKey::EdgeVector { .. } => "edge_vectors",
             StorageKey::EdgesForNode(_) => "edges_for_node",
             StorageKey::EdgesTargetingNode(_) => "edges_targeting_node",
             StorageKey::NameMapping { .. } => "names",
@@ -34,8 +39,16 @@ impl StorageKey {
     pub fn key(&self) -> String {
         match self {
             StorageKey::Node(id) => format!("node:{}", id.as_str()),
+            StorageKey::NodeVector {
+                kind,
+                namespace,
+                node_id,
+            } => {
+                let namespace = namespace.as_deref().unwrap_or("_"); // Default to _ for no namespace
+                format!("vec:{}:{}:{}", kind, namespace, node_id.as_str())
+            }
             StorageKey::Edge(id) => format!("edge:{}", id.as_str()),
-            StorageKey::Vector {
+            StorageKey::EdgeVector {
                 edge_kind,
                 namespace,
                 node_id,
@@ -56,15 +69,17 @@ impl StorageKey {
 }
 
 pub struct VectorScanQuery {
-    pub edge_kind: String,
+    pub kind: String,
     pub namespace: Option<String>,
+    pub search_kind: SearchKind,
 }
 
 impl VectorScanQuery {
-    pub fn new(edge_kind: impl Into<String>) -> Self {
+    pub fn new(edge_kind: impl Into<String>, search_kind: impl Into<SearchKind>) -> Self {
         Self {
-            edge_kind: edge_kind.into(),
+            kind: edge_kind.into(),
             namespace: None,
+            search_kind: search_kind.into(),
         }
     }
 
@@ -73,14 +88,35 @@ impl VectorScanQuery {
         self
     }
 
-    pub fn partition(&self) -> &'static str {
-        "vectors"
+    pub fn partitions(&self) -> Vec<String> {
+        let mut partitions = Vec::new();
+        match self.search_kind {
+            SearchKind::Edge => {
+                partitions.push("edge_vectors".to_string());
+            }
+            SearchKind::Node => {
+                partitions.push("node_vectors".to_string());
+            }
+            SearchKind::All => {
+                partitions.push("edge_vectors".to_string());
+                partitions.push("node_vectors".to_string());
+            }
+        }
+        partitions
     }
 
     pub fn scan_prefix(&self) -> String {
         match &self.namespace {
-            Some(ns) => format!("vec:{}:{}:", self.edge_kind, ns),
-            None => format!("vec:{}:", self.edge_kind),
+            Some(ns) => format!("vec:{}:{}:", self.kind, ns),
+            None => format!("vec:{}:", self.kind),
+        }
+    }
+
+    pub fn search_kind_from_partition(partition: &str) -> Option<SearchKind> {
+        match partition {
+            "node_vectors" => Some(SearchKind::Node),
+            "edge_vectors" => Some(SearchKind::Edge),
+            _ => None,
         }
     }
 

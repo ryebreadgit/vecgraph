@@ -1,12 +1,12 @@
 use crate::{
-    delete_edge, delete_name_mapping, delete_node, get_edge, get_edges_for_node, get_name_mapping,
-    get_node, get_vector, insert_edge, insert_node, search, set_name_mapping,
+    delete_edge, delete_name_mapping, delete_node, get_edge, get_edge_vector, get_edges_for_node,
+    get_name_mapping, get_node, insert_edge, insert_node, search, set_name_mapping,
 };
 use async_trait::async_trait;
 use kvwrap::KvStore;
 use vecgraph_core::{
-    Edge, EdgeId, EdgeWithVector, GraphStore, Node, NodeId, SearchQuery, SearchResult,
-    VecGraphError,
+    Edge, EdgeId, EdgeWithVector, GraphStore, Node, NodeId, NodeWithVector, SearchQuery,
+    SearchResult, VecGraphError,
 };
 
 pub struct VecGraphStore {
@@ -15,7 +15,7 @@ pub struct VecGraphStore {
 
 #[async_trait]
 impl GraphStore for VecGraphStore {
-    async fn insert_node(&self, node: &Node) -> Result<(), VecGraphError> {
+    async fn insert_node(&self, node: &NodeWithVector) -> Result<(), VecGraphError> {
         insert_node(self, node).await
     }
     async fn get_node(&self, id: &NodeId) -> Result<Option<Node>, VecGraphError> {
@@ -42,7 +42,7 @@ impl GraphStore for VecGraphStore {
         delete_edge(self, id).await
     }
     async fn get_vector(&self, id: &EdgeId) -> Result<Option<Vec<f32>>, VecGraphError> {
-        get_vector(self, id).await
+        get_edge_vector(self, id).await
     }
     async fn set_name_mapping(
         &self,

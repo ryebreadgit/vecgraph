@@ -1,8 +1,8 @@
 use crate::VecGraphStore;
 use std::collections::BinaryHeap;
 use vecgraph_core::{
-    Node, NodeId, ScoredHit, SearchQuery, SearchResult, StorageKey, VecGraphError, VectorScanQuery,
-    cosine_distance,
+    Node, NodeId, ScoredHit, SearchKind, SearchQuery, SearchResult, StorageKey, VecGraphError,
+    VectorScanQuery, cosine_distance,
 };
 
 pub async fn search(
@@ -10,8 +10,9 @@ pub async fn search(
     request: &SearchQuery,
 ) -> Result<Vec<SearchResult>, VecGraphError> {
     let scan = VectorScanQuery {
-        edge_kind: request.edge_kind.clone(),
+        kind: request.kind.clone(),
         namespace: request.namespace.clone(),
+        search_kind: request.search_kind.clone(),
     };
 
     // Over-fetch when we need to post-filter or re-rank
@@ -33,7 +34,7 @@ pub async fn search(
 
     // Re-rank if requested, then sort by new score
     if let Some(rerank) = &request.rerank {
-        rerank_results(store, &mut results, rerank).await;
+        rerank_results(store, &mut results, rerank, request.search_kind.clone()).await;
         results.sort_by(|a, b| {
             a.score
                 .partial_cmp(&b.score)
@@ -47,8 +48,9 @@ pub async fn search(
         .into_iter()
         .map(|hit| SearchResult {
             node_id: NodeId::new(String::from_utf8_lossy(&hit.node_id_bytes).into_owned()),
-            edge_kind: hit.edge_kind,
+            kind: hit.kind,
             score: hit.score,
+            hit_kind: hit.hit_kind,
         })
         .collect())
 }
@@ -61,41 +63,46 @@ async fn scan_vectors(
 ) -> BinaryHeap<ScoredHit> {
     let mut heap: BinaryHeap<ScoredHit> = BinaryHeap::new();
     let prefix = scan.scan_prefix();
-    let rx = store.kv.scan(scan.partition(), Some(prefix.as_bytes()), 64);
 
-    while let Ok(entry) = rx.recv().await {
-        let (key_bytes, value) = match entry {
-            Ok(pair) => pair,
-            Err(_) => continue,
-        };
+    for partition in scan.partitions() {
+        let rx = store.kv.scan(&partition, Some(prefix.as_bytes()), 64);
 
-        let candidate: &[f32] = match bytemuck::try_cast_slice(&value) {
-            Ok(slice) => slice,
-            Err(_) => continue,
-        };
+        while let Ok(entry) = rx.recv().await {
+            let (key_bytes, value) = match entry {
+                Ok(pair) => pair,
+                Err(_) => continue,
+            };
 
-        if candidate.len() != query_vec.len() {
-            continue;
-        }
+            let candidate: &[f32] = match bytemuck::try_cast_slice(&value) {
+                Ok(slice) => slice,
+                Err(_) => continue,
+            };
 
-        let dist = cosine_distance(query_vec, candidate);
-
-        if heap.len() < top_k || dist < heap.peek().map_or(f32::MAX, |top| top.score) {
-            if heap.len() == top_k {
-                heap.pop(); // evict worst
+            if candidate.len() != query_vec.len() {
+                continue;
             }
 
-            let key_str = String::from_utf8_lossy(&key_bytes);
-            let node_id = VectorScanQuery::node_id_from_key(&key_str)
-                .unwrap_or("")
-                .as_bytes()
-                .to_vec();
+            let dist = cosine_distance(query_vec, candidate);
 
-            heap.push(ScoredHit {
-                node_id_bytes: node_id,
-                edge_kind: scan.edge_kind.clone(),
-                score: dist,
-            });
+            if heap.len() < top_k || dist < heap.peek().map_or(f32::MAX, |top| top.score) {
+                if heap.len() == top_k {
+                    heap.pop(); // evict worst
+                }
+
+                let key_str = String::from_utf8_lossy(&key_bytes);
+                let node_id = VectorScanQuery::node_id_from_key(&key_str)
+                    .unwrap_or("")
+                    .as_bytes()
+                    .to_vec();
+
+                heap.push(ScoredHit {
+                    node_id_bytes: node_id,
+                    kind: scan.kind.clone(),
+                    score: dist,
+                    hit_kind: VectorScanQuery::search_kind_from_partition(&&partition)
+                        .unwrap_or(SearchKind::All),
+                });
+            }
         }
     }
 
@@ -135,26 +142,25 @@ async fn rerank_results(
     store: &VecGraphStore,
     results: &mut [ScoredHit],
     rerank: &vecgraph_core::RerankParams,
+    search_kind: SearchKind,
 ) {
     let rerank_scan = VectorScanQuery {
-        edge_kind: rerank.edge_kind.clone(),
+        kind: rerank.kind.clone(),
         namespace: None, // re-rank across all namespaces
+        search_kind: search_kind.clone(),
     };
     let rerank_prefix = rerank_scan.scan_prefix();
 
     for hit in results.iter_mut() {
         let node_id_str = String::from_utf8_lossy(&hit.node_id_bytes);
         let rerank_key = format!("{}{}", rerank_prefix, node_id_str);
-
-        if let Ok(Some(bytes)) = store
-            .kv
-            .get(rerank_scan.partition(), rerank_key.as_bytes())
-            .await
-        {
-            if let Ok(rerank_vec) = bytemuck::try_cast_slice::<u8, f32>(&bytes) {
-                if rerank_vec.len() == rerank.vector.len() {
-                    let rerank_dist = cosine_distance(&rerank.vector, rerank_vec);
-                    hit.score = (1.0 - rerank.weight) * hit.score + rerank.weight * rerank_dist;
+        for partition in rerank_scan.partitions() {
+            if let Ok(Some(bytes)) = store.kv.get(&partition, rerank_key.as_bytes()).await {
+                if let Ok(rerank_vec) = bytemuck::try_cast_slice::<u8, f32>(&bytes) {
+                    if rerank_vec.len() == rerank.vector.len() {
+                        let rerank_dist = cosine_distance(&rerank.vector, rerank_vec);
+                        hit.score = (1.0 - rerank.weight) * hit.score + rerank.weight * rerank_dist;
+                    }
                 }
             }
         }

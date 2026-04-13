@@ -20,7 +20,7 @@ pub async fn insert_edge(
         Some(ns) => Some(ns),
         None => None,
     };
-    let vec_key = StorageKey::Vector {
+    let vec_key = StorageKey::EdgeVector {
         edge_kind: edge_with_vec.edge.edge_kind.clone(),
         namespace,
         node_id: edge_with_vec.edge.source_node_id.clone(),
@@ -98,7 +98,7 @@ pub async fn delete_edge(store: &VecGraphStore, id: &EdgeId) -> Result<(), VecGr
 
     // Delete the vector
     let namespace = get_node_namespace(store, &edge.source_node_id).await;
-    let vec_key = StorageKey::Vector {
+    let vec_key = StorageKey::EdgeVector {
         edge_kind: edge.edge_kind,
         namespace,
         node_id: edge.source_node_id,
@@ -112,7 +112,7 @@ pub async fn delete_edge(store: &VecGraphStore, id: &EdgeId) -> Result<(), VecGr
     Ok(())
 }
 
-pub async fn get_vector(
+pub async fn get_edge_vector(
     store: &VecGraphStore,
     id: &EdgeId,
 ) -> Result<Option<Vec<f32>>, VecGraphError> {
@@ -123,7 +123,7 @@ pub async fn get_vector(
     };
 
     let namespace = get_node_namespace(store, &edge.source_node_id).await;
-    let vec_key = StorageKey::Vector {
+    let vec_key = StorageKey::EdgeVector {
         edge_kind: edge.edge_kind,
         namespace,
         node_id: edge.source_node_id,

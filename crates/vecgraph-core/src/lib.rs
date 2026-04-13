@@ -10,9 +10,9 @@ pub use edge::{Edge, EdgeId, EdgeWithVector};
 pub use error::VecGraphError;
 pub use graph::GraphStore;
 pub use keys::{StorageKey, VectorScanQuery};
-pub use node::{Node, NodeId};
+pub use node::{Node, NodeId, NodeWithVector};
 pub use search::{
-    RerankParams, ScoredHit, SearchQuery, SearchResult, build_base_vector, cosine_distance,
-    normalize,
+    RerankParams, ScoredHit, SearchKind, SearchQuery, SearchResult, build_base_vector,
+    cosine_distance, normalize,
 };
 pub use traits::Embedder;

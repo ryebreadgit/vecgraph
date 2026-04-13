@@ -1,11 +1,12 @@
 use crate::{
-    Edge, EdgeId, EdgeWithVector, Node, NodeId, SearchQuery, SearchResult, error::VecGraphError,
+    Edge, EdgeId, EdgeWithVector, Node, NodeId, NodeWithVector, SearchQuery, SearchResult,
+    error::VecGraphError,
 };
 use async_trait::async_trait;
 
 #[async_trait]
 pub trait GraphStore: Send + Sync {
-    async fn insert_node(&self, node: &Node) -> Result<(), VecGraphError>;
+    async fn insert_node(&self, node: &NodeWithVector) -> Result<(), VecGraphError>;
 
     async fn get_node(&self, id: &NodeId) -> Result<Option<Node>, VecGraphError>;
 

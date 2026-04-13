@@ -59,3 +59,15 @@ impl Node {
         serde_json::from_value(self.payload.clone()).ok()
     }
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NodeWithVector {
+    pub node: Node,
+    pub vector: Vec<f32>,
+}
+
+impl NodeWithVector {
+    pub fn new(node: Node, vector: Vec<f32>) -> Self {
+        Self { node, vector }
+    }
+}

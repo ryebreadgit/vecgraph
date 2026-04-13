@@ -1,22 +1,31 @@
 use crate::NodeId;
 use crate::error::VecGraphError;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SearchKind {
+    Edge,
+    Node,
+    All,
+}
+
 #[derive(Debug)]
 pub struct SearchResult {
     pub node_id: NodeId,
-    pub edge_kind: String,
+    pub kind: String,
     pub score: f32,
+    pub hit_kind: SearchKind,
 }
 
 pub struct RerankParams {
     pub vector: Vec<f32>,
-    pub edge_kind: String,
+    pub kind: String,
     pub weight: f32,
 }
 
 pub struct SearchQuery {
+    pub search_kind: SearchKind,
     pub query_vec: Vec<f32>,
-    pub edge_kind: String,
+    pub kind: String,
     pub namespace: Option<String>,
     pub top_k: usize,
     pub exclude_names: Vec<String>,
@@ -25,15 +34,22 @@ pub struct SearchQuery {
 
 pub struct ScoredHit {
     pub node_id_bytes: Vec<u8>,
-    pub edge_kind: String,
+    pub kind: String,
     pub score: f32,
+    pub hit_kind: SearchKind,
 }
 
 impl SearchQuery {
-    pub fn new(query_vec: Vec<f32>, edge_kind: impl Into<String>, top_k: usize) -> Self {
+    pub fn new(
+        query_vec: Vec<f32>,
+        search_kind: impl Into<SearchKind>,
+        edge_kind: impl Into<String>,
+        top_k: usize,
+    ) -> Self {
         Self {
             query_vec,
-            edge_kind: edge_kind.into(),
+            search_kind: search_kind.into(),
+            kind: edge_kind.into(),
             namespace: None,
             top_k,
             exclude_names: Vec::new(),
@@ -51,18 +67,41 @@ impl SearchQuery {
         self
     }
 
-    pub fn with_rerank(
-        mut self,
-        vector: Vec<f32>,
-        edge_kind: impl Into<String>,
-        weight: f32,
-    ) -> Self {
+    pub fn with_rerank(mut self, vector: Vec<f32>, kind: impl Into<String>, weight: f32) -> Self {
         self.rerank = Some(RerankParams {
             vector,
-            edge_kind: edge_kind.into(),
+            kind: kind.into(),
             weight: weight.clamp(0.0, 1.0),
         });
         self
+    }
+}
+
+impl From<&str> for SearchKind {
+    fn from(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "edge" => SearchKind::Edge,
+            "node" => SearchKind::Node,
+            "all" => SearchKind::All,
+            _ => SearchKind::All, // Default to all if unrecognized
+        }
+    }
+}
+
+impl From<String> for SearchKind {
+    fn from(s: String) -> Self {
+        SearchKind::from(s.as_str())
+    }
+}
+
+impl std::fmt::Display for SearchKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            SearchKind::Edge => "edge",
+            SearchKind::Node => "node",
+            SearchKind::All => "all",
+        };
+        f.write_str(s)
     }
 }
 

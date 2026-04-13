@@ -1,15 +1,31 @@
 use crate::VecGraphStore;
-use vecgraph_core::{Node, NodeId, StorageKey, VecGraphError};
+use vecgraph_core::{Node, NodeId, NodeWithVector, StorageKey, VecGraphError};
 
-pub async fn insert_node(store: &VecGraphStore, node: &Node) -> Result<(), VecGraphError> {
-    let key = StorageKey::Node(node.id.clone());
-    let value =
-        serde_json::to_vec(node).map_err(|e| VecGraphError::SerializationError(e.to_string()))?;
+pub async fn insert_node(
+    store: &VecGraphStore,
+    node_with_vector: &NodeWithVector,
+) -> Result<(), VecGraphError> {
+    let node_key = StorageKey::Node(node_with_vector.node.id.clone());
+    let node_bytes = serde_json::to_vec(&node_with_vector.node)
+        .map_err(|e| VecGraphError::SerializationError(e.to_string()))?;
     store
         .kv
-        .set(key.partition(), key.key().as_bytes(), &value)
+        .set(node_key.partition(), node_key.key().as_bytes(), &node_bytes)
         .await
         .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
+    // Store vector separately under `vector:{kind}:{namespace?}:{node_id}`
+    let vec_key = StorageKey::NodeVector {
+        kind: node_with_vector.node.kind.clone(),
+        namespace: node_with_vector.node.namespace.clone(),
+        node_id: node_with_vector.node.id.clone(),
+    };
+    let vec_bytes: &[u8] = bytemuck::cast_slice(&node_with_vector.vector);
+    store
+        .kv
+        .set(vec_key.partition(), vec_key.key().as_bytes(), vec_bytes)
+        .await
+        .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
+
     Ok(())
 }
 pub async fn get_node(store: &VecGraphStore, id: &NodeId) -> Result<Option<Node>, VecGraphError> {
