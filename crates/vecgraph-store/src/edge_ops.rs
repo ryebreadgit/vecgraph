@@ -11,6 +11,36 @@ pub async fn insert_edge(store: &VecGraphStore, edge: &Edge) -> Result<(), VecGr
         .await
         .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
 
+    // Write forward index
+    let fwd_key = StorageKey::EdgesForNode {
+        node_id: edge.source_node_id.clone(),
+        edge_id: edge.id.clone(),
+    };
+    store
+        .kv
+        .set(
+            fwd_key.partition(),
+            fwd_key.key().as_bytes(),
+            edge.id.as_str().as_bytes(),
+        )
+        .await
+        .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
+
+    // Write reverse index
+    let rev_key = StorageKey::EdgesTargetingNode {
+        node_id: edge.target_node_id.clone(),
+        edge_id: edge.id.clone(),
+    };
+    store
+        .kv
+        .set(
+            rev_key.partition(),
+            rev_key.key().as_bytes(),
+            edge.id.as_str().as_bytes(),
+        )
+        .await
+        .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
+
     Ok(())
 }
 
@@ -18,10 +48,10 @@ pub async fn insert_edge_with_vector(
     store: &VecGraphStore,
     edge_with_vec: &EdgeWithVector,
 ) -> Result<(), VecGraphError> {
-    // Store edge metadata
+    // Store edge metadata + both indexes
     insert_edge(store, &edge_with_vec.edge).await?;
 
-    // Store vector separately under `vector:{edge_kind}:{namespace?}:{node_id}`
+    // Store vector separately
     let namespace = match get_node_namespace(store, &edge_with_vec.edge.source_node_id).await {
         Some(ns) => Some(ns),
         None => None,
@@ -62,19 +92,35 @@ pub async fn get_edges_for_node(
     store: &VecGraphStore,
     node_id: &NodeId,
 ) -> Result<Vec<Edge>, VecGraphError> {
-    // Prefix scan with `edge:{node_id}:` to find all edges for this node
-    let prefix = format!("edge:{}:", node_id.as_str());
-    let rx = store.kv.scan("edges", Some(prefix.as_bytes()), 64);
+    scan_edge_index(store, StorageKey::edges_for_node_prefix(node_id)).await
+}
+
+pub async fn get_edges_targeting_node(
+    store: &VecGraphStore,
+    node_id: &NodeId,
+) -> Result<Vec<Edge>, VecGraphError> {
+    scan_edge_index(store, StorageKey::edges_targeting_node_prefix(node_id)).await
+}
+
+async fn scan_edge_index(
+    store: &VecGraphStore,
+    (partition, prefix): (&str, String),
+) -> Result<Vec<Edge>, VecGraphError> {
+    let rx = store.kv.scan(partition, Some(prefix.as_bytes()), 64);
 
     let mut edges = Vec::new();
     while let Ok(result) = rx.recv().await {
         match result {
             Ok((_key, value)) => {
-                match serde_json::from_slice::<Edge>(&value) {
-                    Ok(edge) => edges.push(edge),
+                let edge_id_str = String::from_utf8_lossy(&value);
+                let edge_id = EdgeId::new(edge_id_str.into_owned());
+                match get_edge(store, &edge_id).await {
+                    Ok(Some(edge)) => edges.push(edge),
+                    Ok(None) => {
+                        eprintln!("Dangling index entry for edge: {}", edge_id);
+                    }
                     Err(e) => {
-                        // Log and skip malformed entries rather than failing the whole scan
-                        eprintln!("Skipping malformed edge: {}", e);
+                        eprintln!("Error fetching edge {}: {}", edge_id, e);
                     }
                 }
             }
@@ -88,7 +134,7 @@ pub async fn get_edges_for_node(
 }
 
 pub async fn delete_edge(store: &VecGraphStore, id: &EdgeId) -> Result<(), VecGraphError> {
-    // Get edge metadata to reconstruct the vector key
+    // Get edge metadata to reconstruct all associated keys
     let edge = match get_edge(store, id).await? {
         Some(e) => e,
         None => return Ok(()), // Already gone
@@ -102,18 +148,37 @@ pub async fn delete_edge(store: &VecGraphStore, id: &EdgeId) -> Result<(), VecGr
         .await
         .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
 
-    // Delete the vector
+    // Delete vector (may not exist if edge was inserted without one)
     let namespace = get_node_namespace(store, &edge.source_node_id).await;
     let vec_key = StorageKey::EdgeVector {
         edge_kind: edge.edge_kind,
         namespace,
-        node_id: edge.source_node_id,
+        node_id: edge.source_node_id.clone(),
     };
-    store
+    let _ = store
         .kv
         .delete(vec_key.partition(), vec_key.key().as_bytes())
-        .await
-        .map_err(|e| VecGraphError::StorageError(e.to_string()))?;
+        .await;
+
+    // Delete forward index entry
+    let fwd_key = StorageKey::EdgesForNode {
+        node_id: edge.source_node_id,
+        edge_id: id.clone(),
+    };
+    let _ = store
+        .kv
+        .delete(fwd_key.partition(), fwd_key.key().as_bytes())
+        .await;
+
+    // Delete reverse index entry
+    let rev_key = StorageKey::EdgesTargetingNode {
+        node_id: edge.target_node_id,
+        edge_id: id.clone(),
+    };
+    let _ = store
+        .kv
+        .delete(rev_key.partition(), rev_key.key().as_bytes())
+        .await;
 
     Ok(())
 }
@@ -122,7 +187,6 @@ pub async fn get_edge_vector(
     store: &VecGraphStore,
     id: &EdgeId,
 ) -> Result<Option<Vec<f32>>, VecGraphError> {
-    // Get edge metadata to reconstruct the vector key
     let edge = match get_edge(store, id).await? {
         Some(e) => e,
         None => return Ok(None),

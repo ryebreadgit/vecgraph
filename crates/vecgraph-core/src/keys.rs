@@ -1,4 +1,5 @@
 use crate::{EdgeId, NodeId, SearchKind};
+
 pub enum StorageKey {
     Node(NodeId),
     NodeVector {
@@ -14,8 +15,15 @@ pub enum StorageKey {
         node_id: NodeId,
     },
 
-    EdgesForNode(NodeId),
-    EdgesTargetingNode(NodeId),
+    EdgesForNode {
+        node_id: NodeId,
+        edge_id: EdgeId,
+    },
+
+    EdgesTargetingNode {
+        node_id: NodeId,
+        edge_id: EdgeId,
+    },
 
     NameMapping {
         kind: String,
@@ -30,8 +38,8 @@ impl StorageKey {
             StorageKey::NodeVector { .. } => "node_vectors",
             StorageKey::Edge(_) => "edges",
             StorageKey::EdgeVector { .. } => "edge_vectors",
-            StorageKey::EdgesForNode(_) => "edges_for_node",
-            StorageKey::EdgesTargetingNode(_) => "edges_targeting_node",
+            StorageKey::EdgesForNode { .. } => "edges_for_node",
+            StorageKey::EdgesTargetingNode { .. } => "edges_targeting_node",
             StorageKey::NameMapping { .. } => "names",
         }
     }
@@ -44,7 +52,7 @@ impl StorageKey {
                 namespace,
                 node_id,
             } => {
-                let namespace = namespace.as_deref().unwrap_or("_"); // Default to _ for no namespace
+                let namespace = namespace.as_deref().unwrap_or("_");
                 format!("vec:{}:{}:{}", kind, namespace, node_id.as_str())
             }
             StorageKey::Edge(id) => format!("edge:{}", id.as_str()),
@@ -53,18 +61,27 @@ impl StorageKey {
                 namespace,
                 node_id,
             } => {
-                let namespace = namespace.as_deref().unwrap_or("_"); // Default to _ for no namespace
+                let namespace = namespace.as_deref().unwrap_or("_");
                 format!("vec:{}:{}:{}", edge_kind, namespace, node_id.as_str())
             }
-            StorageKey::EdgesForNode(node_id) => format!("edges_for_node:{}", node_id.as_str()),
-            StorageKey::EdgesTargetingNode(node_id) => {
-                format!("edges_targeting_node:{}", node_id.as_str())
+            StorageKey::EdgesForNode { node_id, edge_id } => {
+                format!("efn:{}:{}", node_id.as_str(), edge_id.as_str())
             }
-
+            StorageKey::EdgesTargetingNode { node_id, edge_id } => {
+                format!("etn:{}:{}", node_id.as_str(), edge_id.as_str())
+            }
             StorageKey::NameMapping { kind, name } => {
                 format!("name:{}:{}", kind, name)
             }
         }
+    }
+
+    pub fn edges_for_node_prefix(node_id: &NodeId) -> (&'static str, String) {
+        ("edges_for_node", format!("efn:{}:", node_id.as_str()))
+    }
+
+    pub fn edges_targeting_node_prefix(node_id: &NodeId) -> (&'static str, String) {
+        ("edges_targeting_node", format!("etn:{}:", node_id.as_str()))
     }
 }
 

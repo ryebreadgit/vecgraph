@@ -42,6 +42,8 @@ pub trait GraphStore: Send + Sync {
 
     async fn get_edges_for_node(&self, node_id: &NodeId) -> Result<Vec<Edge>, VecGraphError>;
 
+    async fn get_edges_targeting_node(&self, node_id: &NodeId) -> Result<Vec<Edge>, VecGraphError>;
+
     async fn delete_edge(&self, id: &EdgeId) -> Result<(), VecGraphError>;
 
     async fn get_edge_vector(&self, id: &EdgeId) -> Result<Option<Vec<f32>>, VecGraphError>;

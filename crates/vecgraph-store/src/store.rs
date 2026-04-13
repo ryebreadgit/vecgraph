@@ -1,13 +1,13 @@
 use crate::{
     delete_edge, delete_name_mapping, delete_node, get_edge, get_edge_vector, get_edges_for_node,
-    get_name_mapping, get_node, get_node_vector, insert_edge, insert_edge_with_vector, insert_node,
-    insert_node_with_vector, search, set_name_mapping,
+    get_edges_targeting_node, get_name_mapping, get_node, get_node_vector, insert_edge,
+    insert_edge_with_vector, insert_node, insert_node_with_vector, search, set_name_mapping,
 };
 use async_trait::async_trait;
 use kvwrap::KvStore;
 use vecgraph_core::{
     Edge, EdgeId, EdgeWithVector, GraphStore, Node, NodeId, NodeWithVector, SearchQuery,
-    SearchResult, VecGraphError,
+    SearchResult, StorageKey, VecGraphError,
 };
 
 pub struct VecGraphStore {
@@ -31,12 +31,35 @@ impl GraphStore for VecGraphStore {
         get_node_vector(self, id).await
     }
 
+    async fn get_edges_targeting_node(&self, node_id: &NodeId) -> Result<Vec<Edge>, VecGraphError> {
+        get_edges_targeting_node(self, node_id).await
+    }
+
     async fn delete_node(&self, id: &NodeId) -> Result<(), VecGraphError> {
-        // Cascade: delete all edges first, then the node
-        let edges = get_edges_for_node(self, id).await?;
-        for edge in &edges {
+        let outgoing = get_edges_for_node(self, id).await?;
+        for edge in &outgoing {
             delete_edge(self, &edge.id).await?;
         }
+
+        // Cascade: delete all edges where this node is the target
+        let incoming = get_edges_targeting_node(self, id).await?;
+        for edge in &incoming {
+            delete_edge(self, &edge.id).await?;
+        }
+
+        // Delete the node's vector if it has one
+        if let Ok(Some(node)) = get_node(self, id).await {
+            let vec_key = StorageKey::NodeVector {
+                kind: node.kind,
+                namespace: node.namespace,
+                node_id: id.clone(),
+            };
+            let _ = self
+                .kv
+                .delete(vec_key.partition(), vec_key.key().as_bytes())
+                .await;
+        }
+
         delete_node(self, id).await
     }
     async fn insert_edge(&self, edge: &Edge) -> Result<(), VecGraphError> {
