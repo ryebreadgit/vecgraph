@@ -12,7 +12,8 @@ pub enum StorageKey {
     EdgeVector {
         edge_kind: String,
         namespace: Option<String>,
-        node_id: NodeId,
+        source_node_id: NodeId,
+        target_node_id: NodeId,
     },
 
     EdgesForNode {
@@ -59,10 +60,17 @@ impl StorageKey {
             StorageKey::EdgeVector {
                 edge_kind,
                 namespace,
-                node_id,
+                source_node_id,
+                target_node_id,
             } => {
                 let namespace = namespace.as_deref().unwrap_or("_");
-                format!("vec:{}:{}:{}", edge_kind, namespace, node_id.as_str())
+                format!(
+                    "vec:{}:{}:{}:{}",
+                    edge_kind,
+                    namespace,
+                    source_node_id.as_str(),
+                    target_node_id.as_str()
+                )
             }
             StorageKey::EdgesForNode { node_id, edge_id } => {
                 format!("efn:{}:{}", node_id.as_str(), edge_id.as_str())
@@ -138,11 +146,10 @@ impl VectorScanQuery {
     }
 
     pub fn node_id_from_key(key: &str) -> Option<&str> {
-        // Split the key into at most 4 parts: "vec", edge_kind, namespace (or _), node_id
-        let mut parts = key.splitn(4, ':');
-        let _prefix = parts.next()?;
-        let _edge_kind = parts.next()?;
-        let _namespace = parts.next()?;
-        parts.next() // node_id
+        let mut parts = key.splitn(5, ':');
+        let _prefix = parts.next()?; // "vec"
+        let _kind = parts.next()?; // edge_kind or node kind
+        let _namespace = parts.next()?; // namespace or "_"
+        parts.next() // source_node_id (for edges) or node_id (for nodes)
     }
 }

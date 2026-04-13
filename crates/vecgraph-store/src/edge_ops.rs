@@ -52,14 +52,12 @@ pub async fn insert_edge_with_vector(
     insert_edge(store, &edge_with_vec.edge).await?;
 
     // Store vector separately
-    let namespace = match get_node_namespace(store, &edge_with_vec.edge.source_node_id).await {
-        Some(ns) => Some(ns),
-        None => None,
-    };
+    let namespace = get_node_namespace(store, &edge_with_vec.edge.source_node_id).await;
     let vec_key = StorageKey::EdgeVector {
         edge_kind: edge_with_vec.edge.edge_kind.clone(),
         namespace,
-        node_id: edge_with_vec.edge.source_node_id.clone(),
+        source_node_id: edge_with_vec.edge.source_node_id.clone(),
+        target_node_id: edge_with_vec.edge.target_node_id.clone(),
     };
     let vec_bytes: &[u8] = bytemuck::cast_slice(&edge_with_vec.vector);
     store
@@ -153,7 +151,8 @@ pub async fn delete_edge(store: &VecGraphStore, id: &EdgeId) -> Result<(), VecGr
     let vec_key = StorageKey::EdgeVector {
         edge_kind: edge.edge_kind,
         namespace,
-        node_id: edge.source_node_id.clone(),
+        source_node_id: edge.source_node_id.clone(),
+        target_node_id: edge.target_node_id.clone(),
     };
     let _ = store
         .kv
@@ -196,7 +195,8 @@ pub async fn get_edge_vector(
     let vec_key = StorageKey::EdgeVector {
         edge_kind: edge.edge_kind,
         namespace,
-        node_id: edge.source_node_id,
+        source_node_id: edge.source_node_id,
+        target_node_id: edge.target_node_id,
     };
 
     match store

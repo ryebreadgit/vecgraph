@@ -9,8 +9,17 @@ impl EdgeId {
         Self(id.into())
     }
 
-    pub fn from_node_and_kind(node_id: &NodeId, edge_kind: &str) -> Self {
-        Self(format!("{}:{}", node_id.as_str(), edge_kind))
+    pub fn from_source_target_kind(
+        source_id: &NodeId,
+        target_id: &NodeId,
+        edge_kind: &str,
+    ) -> Self {
+        Self(format!(
+            "{}:{}:{}",
+            source_id.as_str(),
+            edge_kind,
+            target_id.as_str()
+        ))
     }
 
     pub fn as_str(&self) -> &str {
@@ -50,7 +59,7 @@ impl Edge {
         let source_node_id: NodeId = source_node_id.into();
         let target_node_id: NodeId = target_node_id.into();
         let kind: String = edge_kind.into();
-        let id = EdgeId::from_node_and_kind(&source_node_id, &kind);
+        let id = EdgeId::from_source_target_kind(&source_node_id, &target_node_id, &kind);
 
         Self {
             id,
@@ -72,7 +81,13 @@ impl Edge {
         let source_node_id: NodeId = source_node_id.into();
         let target_node_id: NodeId = target_node_id.into();
         let kind: String = edge_kind.into();
-        let id = EdgeId::new(format!("{}:{}:{}", source_node_id.as_str(), kind, suffix));
+        let id = EdgeId::new(format!(
+            "{}:{}:{}:{}",
+            source_node_id.as_str(),
+            kind,
+            target_node_id.as_str(),
+            suffix
+        ));
 
         Self {
             id,
