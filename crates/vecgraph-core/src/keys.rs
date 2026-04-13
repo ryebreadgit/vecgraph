@@ -11,6 +11,7 @@ pub enum StorageKey {
     },
 
     EdgesForNode(NodeId),
+    EdgesTargetingNode(NodeId),
 
     NameMapping {
         kind: String,
@@ -25,6 +26,7 @@ impl StorageKey {
             StorageKey::Edge(_) => "edges",
             StorageKey::Vector { .. } => "vectors",
             StorageKey::EdgesForNode(_) => "edges_for_node",
+            StorageKey::EdgesTargetingNode(_) => "edges_targeting_node",
             StorageKey::NameMapping { .. } => "names",
         }
     }
@@ -42,6 +44,10 @@ impl StorageKey {
                 format!("vec:{}:{}:{}", edge_kind, namespace, node_id.as_str())
             }
             StorageKey::EdgesForNode(node_id) => format!("edges_for_node:{}", node_id.as_str()),
+            StorageKey::EdgesTargetingNode(node_id) => {
+                format!("edges_targeting_node:{}", node_id.as_str())
+            }
+
             StorageKey::NameMapping { kind, name } => {
                 format!("name:{}:{}", kind, name)
             }

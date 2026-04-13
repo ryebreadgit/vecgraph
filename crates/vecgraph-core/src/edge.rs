@@ -34,6 +34,7 @@ impl<T: Into<String>> From<T> for EdgeId {
 pub struct Edge {
     pub id: EdgeId,
     pub source_node_id: NodeId,
+    pub target_node_id: NodeId,
     pub edge_kind: String,
     pub content: String,
     pub metadata: Option<serde_json::Value>,
@@ -42,16 +43,19 @@ pub struct Edge {
 impl Edge {
     pub fn new(
         source_node_id: impl Into<NodeId>,
+        target_node_id: impl Into<NodeId>,
         edge_kind: impl Into<String>,
         content: impl Into<String>,
     ) -> Self {
-        let node_id: NodeId = source_node_id.into();
+        let source_node_id: NodeId = source_node_id.into();
+        let target_node_id: NodeId = target_node_id.into();
         let kind: String = edge_kind.into();
-        let id = EdgeId::from_node_and_kind(&node_id, &kind);
+        let id = EdgeId::from_node_and_kind(&source_node_id, &kind);
 
         Self {
             id,
-            source_node_id: node_id,
+            source_node_id,
+            target_node_id,
             edge_kind: kind,
             content: content.into(),
             metadata: None,
@@ -60,17 +64,20 @@ impl Edge {
 
     pub fn with_suffix(
         source_node_id: impl Into<NodeId>,
+        target_node_id: impl Into<NodeId>,
         edge_kind: impl Into<String>,
         suffix: impl std::fmt::Display,
         content: impl Into<String>,
     ) -> Self {
-        let node_id: NodeId = source_node_id.into();
+        let source_node_id: NodeId = source_node_id.into();
+        let target_node_id: NodeId = target_node_id.into();
         let kind: String = edge_kind.into();
-        let id = EdgeId::new(format!("{}:{}:{}", node_id.as_str(), kind, suffix));
+        let id = EdgeId::new(format!("{}:{}:{}", source_node_id.as_str(), kind, suffix));
 
         Self {
             id,
-            source_node_id: node_id,
+            source_node_id,
+            target_node_id,
             edge_kind: kind,
             content: content.into(),
             metadata: None,
