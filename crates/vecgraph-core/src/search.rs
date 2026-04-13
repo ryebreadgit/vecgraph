@@ -43,13 +43,13 @@ impl SearchQuery {
     pub fn new(
         query_vec: Vec<f32>,
         search_kind: impl Into<SearchKind>,
-        edge_kind: impl Into<String>,
+        kind: impl Into<String>,
         top_k: usize,
     ) -> Self {
         Self {
             query_vec,
             search_kind: search_kind.into(),
-            kind: edge_kind.into(),
+            kind: kind.into(),
             namespace: None,
             top_k,
             exclude_names: Vec::new(),
