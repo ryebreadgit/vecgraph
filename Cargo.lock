@@ -1149,8 +1149,9 @@ dependencies = [
 
 [[package]]
 name = "kvwrap"
-version = "0.1.0"
-source = "git+https://github.com/ryebreadgit/kvwrap#3d68e7463863d64a85aa0e5472d47192ce876944"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "108294da0181b6265355ce1bcc61ff3c20dccaf1255111cdd85d6827d9cced7e"
 dependencies = [
  "kvwrap-core",
  "kvwrap-distributed",
@@ -1158,8 +1159,9 @@ dependencies = [
 
 [[package]]
 name = "kvwrap-core"
-version = "0.1.0"
-source = "git+https://github.com/ryebreadgit/kvwrap#3d68e7463863d64a85aa0e5472d47192ce876944"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "857915ac65bf974cb70384eb82bff626f66d7bd09ec28b64b3c3f9531bf9e022"
 dependencies = [
  "async-channel",
  "async-trait",
@@ -1172,8 +1174,9 @@ dependencies = [
 
 [[package]]
 name = "kvwrap-distributed"
-version = "0.1.0"
-source = "git+https://github.com/ryebreadgit/kvwrap#3d68e7463863d64a85aa0e5472d47192ce876944"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fe576a7bbfbc7bc48e9a863f222a8fd7a60597e3b0194bcab443985ae56ba64"
 dependencies = [
  "kvwrap-core",
  "kvwrap-proto",
@@ -1187,8 +1190,9 @@ dependencies = [
 
 [[package]]
 name = "kvwrap-proto"
-version = "0.1.0"
-source = "git+https://github.com/ryebreadgit/kvwrap#3d68e7463863d64a85aa0e5472d47192ce876944"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1ee5c8e21272ae15c2e7374a31520bf6e172333d175039bf21ed33d433a9aaf"
 dependencies = [
  "prost",
  "serde",
