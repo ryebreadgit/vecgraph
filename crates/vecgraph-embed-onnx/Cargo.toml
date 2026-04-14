@@ -1,9 +1,13 @@
 [package]
 name = "vecgraph-embed-onnx"
+description = "ONNX embedding module for vecgraph"
+readme = "README.md"
+
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
+repository.workspace = true
 
 [dependencies]
 vecgraph-core.workspace = true

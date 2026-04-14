@@ -1,8 +1,13 @@
 [package]
 name = "vecgraph"
+description = "Fast and efficient vector graph database built on top of kvwrap."
+readme = "README.md"
+
 version.workspace = true
 edition.workspace = true
-description = "Fast and efficient vector graph database built on top of kvwrap."
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
 
 [features]
 default = []

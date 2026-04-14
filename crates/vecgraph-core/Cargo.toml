@@ -1,9 +1,13 @@
 [package]
 name = "vecgraph-core"
+description = "Core traits and utilities for vecgraph."
+readme = "README.md"
+
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
+repository.workspace = true
 
 
 [dependencies]

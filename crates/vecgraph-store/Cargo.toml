@@ -1,9 +1,14 @@
 [package]
 name = "vecgraph-store"
+description = "Persistent storage module for vecgraph, built on top of kvwrap."
+readme = "README.md"
+
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
+repository.workspace = true
+
 
 [dependencies]
 vecgraph-core.workspace = true

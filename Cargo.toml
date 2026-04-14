@@ -17,10 +17,11 @@ repository = "https://github.com/ryebreadgit/vecgraph"
 
 [workspace.dependencies]
 # Internal
-vecgraph-core = { path = "crates/vecgraph-core" }
-vecgraph-store = { path = "crates/vecgraph-store" }
-vecgraph-embed-model2vec = { path = "crates/vecgraph-embed-model2vec" }
-vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx" }
+vecgraph = { path = "crates/vecgraph", version = "0.1.0"  }
+vecgraph-core = { path = "crates/vecgraph-core", version = "0.1.0"  }
+vecgraph-store = { path = "crates/vecgraph-store", version = "0.1.0"  }
+vecgraph-embed-model2vec = { path = "crates/vecgraph-embed-model2vec", version = "0.1.0"  }
+vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx", version = "0.1.0"  }
 
 # External
 kvwrap = { git = "https://github.com/ryebreadgit/kvwrap" }
