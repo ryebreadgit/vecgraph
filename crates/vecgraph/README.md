@@ -2,6 +2,8 @@
 
 Vecgraph is a vector graph database for Rust written on top of kvwrap.
 
+For full documentation see the [project README](https://github.com/ryebreadgit/vecgraph).
+
 ## Usage
 
 ```bash
