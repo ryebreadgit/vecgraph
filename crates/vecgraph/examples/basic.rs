@@ -176,7 +176,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Cleanup: delete bob and verify cascade
 
-        println!("\n=== Delete bob (cascades edges) ===\n");
+        println!("\nDelete bob (cascades edges)\n");
 
         store.delete_node(&"bob".into()).await?;
 
