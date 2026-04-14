@@ -15,3 +15,8 @@ vecgraph-core.workspace = true
 vecgraph-store.workspace = true
 vecgraph-embed-onnx = { workspace = true, optional = true }
 vecgraph-embed-model2vec = { workspace = true, optional = true }
+
+[dev-dependencies]
+kvwrap = { git = "https://github.com/ryebreadgit/kvwrap" }
+serde_json.workspace = true
+pollster.workspace = true # Async runtime for examples
