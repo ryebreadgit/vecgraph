@@ -68,21 +68,6 @@ let results = store
 | `embed-onnx` | off | ONNX Runtime embedder for custom models |
 | `full` | off | Enables all embedders |
 
-## Examples
-
-[See here](./crates/vecgraph/examples/) for practical examples of using Vecgraph.
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## AI Disclosure
-
-Github Copilot autocomplete was used in the development of this project, but no other Copilot features. Claude was used to generate small snippets of code, specifically portions of the math, which has comments indicating as such.
-
 ## License
 
-[MIT](./LICENSE.md)
+[MIT](../../LICENSE.md)
