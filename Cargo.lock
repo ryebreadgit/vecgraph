@@ -2671,6 +2671,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "vecgraph-proto"
+version = "0.1.0"
+dependencies = [
+ "prost",
+ "serde",
+ "tonic",
+ "tonic-prost",
+ "tonic-prost-build",
+]
+
+[[package]]
 name = "vecgraph-store"
 version = "0.1.0"
 dependencies = [

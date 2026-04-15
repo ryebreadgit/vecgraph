@@ -10,6 +10,7 @@
   # https://devenv.sh/packages/
   packages = with pkgs; [
     protobuf
+    protolint
   ];
 
   # https://devenv.sh/variables/

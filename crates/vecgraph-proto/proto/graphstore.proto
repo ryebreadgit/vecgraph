@@ -1,0 +1,257 @@
+syntax = "proto3";
+package graphstorepb;
+
+/// Service for distributed graph store operations.
+service GraphStoreService {
+  // Insert a node without a vector
+  rpc InsertNode(InsertNodeRequest) returns (InsertNodeResponse);
+  // Insert a node with its embedding vector
+  rpc InsertNodeWithVector(InsertNodeWithVectorRequest) returns (InsertNodeWithVectorResponse);
+  // Batch insert nodes with their embedding vectors
+  rpc InsertNodesWithVector(InsertNodesWithVectorRequest) returns (InsertNodesWithVectorResponse);
+  // Get a node by its ID
+  rpc GetNode(GetNodeRequest) returns (GetNodeResponse);
+  // Delete a node by its ID
+  rpc DeleteNode(DeleteNodeRequest) returns (DeleteNodeResponse);
+
+  // Insert an edge without a vector
+  rpc InsertEdge(InsertEdgeRequest) returns (InsertEdgeResponse);
+  // Insert an edge with its embedding vector
+  rpc InsertEdgeWithVector(InsertEdgeWithVectorRequest) returns (InsertEdgeWithVectorResponse);
+  // Batch insert edges with their embedding vectors
+  rpc InsertEdgesWithVector(InsertEdgesWithVectorRequest) returns (InsertEdgesWithVectorResponse);
+  // Get an edge by its ID
+  rpc GetEdge(GetEdgeRequest) returns (GetEdgeResponse);
+  // Get all edges originating from a node
+  rpc GetEdgesForNode(GetEdgesForNodeRequest) returns (GetEdgesForNodeResponse);
+  // Get all edges targeting a node
+  rpc GetEdgesTargetingNode(GetEdgesTargetingNodeRequest) returns (GetEdgesTargetingNodeResponse);
+  // Delete an edge by its ID
+  rpc DeleteEdge(DeleteEdgeRequest) returns (DeleteEdgeResponse);
+
+  // Get the embedding vector for an edge
+  rpc GetEdgeVector(GetEdgeVectorRequest) returns (GetEdgeVectorResponse);
+  // Get the embedding vector for a node
+  rpc GetNodeVector(GetNodeVectorRequest) returns (GetNodeVectorResponse);
+
+  // Set a name-to-node mapping for a given kind
+  rpc SetNameMapping(SetNameMappingRequest) returns (SetNameMappingResponse);
+  // Get the node ID for a name mapping
+  rpc GetNameMapping(GetNameMappingRequest) returns (GetNameMappingResponse);
+  // Delete a name-to-node mapping
+  rpc DeleteNameMapping(DeleteNameMappingRequest) returns (DeleteNameMappingResponse);
+
+  // Perform a vector similarity search over nodes and/or edges
+  rpc Search(SearchRequest) returns (SearchResponse);
+}
+
+/// Message definitions for nodes, edges, vectors, and search queries/results.
+
+message Node {
+  string          id        = 1;
+  string          kind      = 2;
+  optional string namespace = 3;
+  string          name      = 4;
+  bytes           payload   = 5; // JSON-encoded payload
+}
+
+message NodeWithVector {
+  Node           node    = 1;
+  repeated float vectors = 2;
+}
+
+message Edge {
+  string         id             = 1;
+  string         source_node_id = 2;
+  string         target_node_id = 3;
+  string         kind           = 4;
+  string         content        = 5;
+  optional bytes metadata       = 6; // JSON-encoded metadata
+}
+
+message EdgeWithVector {
+  Edge           edge    = 1;
+  repeated float vectors = 2;
+}
+
+enum SearchKind {
+  SEARCH_KIND_ALL_UNSPECIFIED = 0;
+  SEARCH_KIND_NODE            = 1;
+  SEARCH_KIND_EDGE            = 2;
+}
+
+message RerankParams {
+  repeated float vectors = 1;
+  string         kind    = 2;
+  float          weight  = 3;
+}
+
+message SearchQuery {
+  SearchKind            search_kind   = 1;
+  repeated float        query_vecs    = 2;
+  string                kind          = 3;
+  optional string       namespace     = 4;
+  uint32                top_k         = 5;
+  repeated string       exclude_names = 6;
+  optional RerankParams rerank        = 7;
+}
+
+message SearchResult {
+  string     node_id  = 1;
+  string     kind     = 2;
+  float      score    = 3;
+  SearchKind hit_kind = 4;
+}
+
+/// Node RPCs
+
+message InsertNodeRequest {
+  Node node = 1;
+}
+
+message InsertNodeResponse {
+}
+
+message InsertNodeWithVectorRequest {
+  NodeWithVector node = 1;
+}
+
+message InsertNodeWithVectorResponse {
+}
+
+message InsertNodesWithVectorRequest {
+  repeated NodeWithVector nodes = 1;
+}
+
+message InsertNodesWithVectorResponse {
+}
+
+message GetNodeRequest {
+  string id = 1;
+}
+
+message GetNodeResponse {
+  optional Node node = 1;
+}
+
+message DeleteNodeRequest {
+  string id = 1;
+}
+
+message DeleteNodeResponse {
+}
+
+/// Edge RPCs
+
+message InsertEdgeRequest {
+  Edge edge = 1;
+}
+
+message InsertEdgeResponse {
+}
+
+message InsertEdgeWithVectorRequest {
+  EdgeWithVector edge = 1;
+}
+
+message InsertEdgeWithVectorResponse {
+}
+
+message InsertEdgesWithVectorRequest {
+  repeated EdgeWithVector edges = 1;
+}
+
+message InsertEdgesWithVectorResponse {
+}
+
+message GetEdgeRequest {
+  string id = 1;
+}
+
+message GetEdgeResponse {
+  optional Edge edge = 1;
+}
+
+message GetEdgesForNodeRequest {
+  string node_id = 1;
+}
+
+message GetEdgesForNodeResponse {
+  repeated Edge edges = 1;
+}
+
+message GetEdgesTargetingNodeRequest {
+  string node_id = 1;
+}
+
+message GetEdgesTargetingNodeResponse {
+  repeated Edge edges = 1;
+}
+
+message DeleteEdgeRequest {
+  string id = 1;
+}
+
+message DeleteEdgeResponse {
+}
+
+/// Vector RPCs
+
+message GetEdgeVectorRequest {
+  string id = 1;
+}
+
+message GetEdgeVectorResponse {
+  optional VectorValue vector = 1;
+}
+
+message GetNodeVectorRequest {
+  string id = 1;
+}
+
+message GetNodeVectorResponse {
+  optional VectorValue vector = 1;
+}
+
+// Wrapper for an optional vector
+message VectorValue {
+  repeated float values = 1;
+}
+
+/// Name Mapping RPCs
+
+message SetNameMappingRequest {
+  string kind    = 1;
+  string name    = 2;
+  string node_id = 3;
+}
+
+message SetNameMappingResponse {
+}
+
+message GetNameMappingRequest {
+  string kind = 1;
+  string name = 2;
+}
+
+message GetNameMappingResponse {
+  optional string node_id = 1;
+}
+
+message DeleteNameMappingRequest {
+  string kind = 1;
+  string name = 2;
+}
+
+message DeleteNameMappingResponse {
+}
+
+/// Search RPC
+
+message SearchRequest {
+  SearchQuery query = 1;
+}
+
+message SearchResponse {
+  repeated SearchResult results = 1;
+}

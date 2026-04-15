@@ -6,6 +6,7 @@ members = [
     "crates/vecgraph-store",
     "crates/vecgraph-embed-model2vec",
     "crates/vecgraph-embed-onnx",
+    "crates/vecgraph-proto",
 ]
 
 [workspace.package]
@@ -22,6 +23,7 @@ vecgraph-core = { path = "crates/vecgraph-core", version = "0.1.0"  }
 vecgraph-store = { path = "crates/vecgraph-store", version = "0.1.0"  }
 vecgraph-embed-model2vec = { path = "crates/vecgraph-embed-model2vec", version = "0.1.0"  }
 vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx", version = "0.1.0"  }
+vecgraph-proto = { path = "crates/vecgraph-proto", version = "0.1.0"  }
 
 # External
 kvwrap = "0.1.1"
@@ -35,6 +37,10 @@ thiserror = "2"
 async-trait = "0.1"
 model2vec-rs = "0.1"
 pollster = "0.4.0"
+tonic = "0.14"
+tonic-prost-build = "0.14"
+tonic-prost = "0.14"
+prost = "0.14"
 
 [profile.release]
 opt-level = "z"
