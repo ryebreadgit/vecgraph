@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/vecgraph",
     "crates/vecgraph-core",
+    "crates/vecgraph-server",
     "crates/vecgraph-store",
     "crates/vecgraph-embed-model2vec",
     "crates/vecgraph-embed-onnx",
@@ -20,6 +21,7 @@ repository = "https://github.com/ryebreadgit/vecgraph"
 # Internal
 vecgraph = { path = "crates/vecgraph", version = "0.1.0"  }
 vecgraph-core = { path = "crates/vecgraph-core", version = "0.1.0"  }
+vecgraph-server = { path = "crates/vecgraph-server", version = "0.1.0"  }
 vecgraph-store = { path = "crates/vecgraph-store", version = "0.1.0"  }
 vecgraph-embed-model2vec = { path = "crates/vecgraph-embed-model2vec", version = "0.1.0"  }
 vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx", version = "0.1.0"  }
@@ -41,6 +43,10 @@ tonic = "0.14"
 tonic-prost-build = "0.14"
 tonic-prost = "0.14"
 prost = "0.14"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tokio-stream = "0.1"
+tracing = "0.1"
+tower-http = { version = "0.6", features = ["trace"] }
 
 [profile.release]
 opt-level = "z"
