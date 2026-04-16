@@ -12,6 +12,8 @@ pub enum VecGraphError {
     SerializationError(String),
     #[error("Tokenizer error: {0}")]
     TokenizerError(String),
+    #[error("Invalid ID: {0}")]
+    InvalidId(String),
     #[error("Error: {0}")]
     Other(String),
 }

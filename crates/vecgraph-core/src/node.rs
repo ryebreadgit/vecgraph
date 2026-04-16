@@ -1,3 +1,4 @@
+use crate::VecGraphError;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -6,6 +7,20 @@ pub struct NodeId(pub String);
 impl NodeId {
     pub fn new(id: impl Into<String>) -> Self {
         Self(id.into())
+    }
+
+    pub fn try_new(id: impl Into<String>) -> Result<Self, VecGraphError> {
+        let s: String = id.into();
+        if s.is_empty() {
+            return Err(VecGraphError::InvalidId("NodeId cannot be empty".into()));
+        }
+        if s.contains(':') || s.chars().any(char::is_whitespace) {
+            return Err(VecGraphError::InvalidId(format!(
+                "NodeId may not contain ':' or whitespace: {:?}",
+                s
+            )));
+        }
+        Ok(Self(s))
     }
 
     pub fn as_str(&self) -> &str {

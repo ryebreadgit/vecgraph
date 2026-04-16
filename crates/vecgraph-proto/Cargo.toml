@@ -10,6 +10,9 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+vecgraph-core = { workspace = true }
+kvwrap = { workspace = true }
+serde_json = { workspace = true }
 tonic = { workspace = true }
 prost = { workspace = true }
 tonic-prost = { workspace = true }
