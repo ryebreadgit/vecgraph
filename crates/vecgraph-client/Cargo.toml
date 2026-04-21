@@ -10,8 +10,8 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-vecgraph-core = { workspace = true }
-vecgraph-proto = { workspace = true }
-async-trait = { workspace = true }
-async-compat = { workspace = true }
-tonic = { workspace = true }
+vecgraph-core.workspace = true
+vecgraph-proto.workspace = true
+async-trait.workspace = true
+async-compat.workspace = true
+tonic.workspace = true
