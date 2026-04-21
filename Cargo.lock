@@ -2690,7 +2690,6 @@ dependencies = [
 name = "vecgraph-proto"
 version = "0.1.0"
 dependencies = [
- "kvwrap",
  "prost",
  "serde",
  "serde_json",
@@ -2704,12 +2703,7 @@ dependencies = [
 name = "vecgraph-server"
 version = "0.1.0"
 dependencies = [
- "kvwrap",
- "prost",
- "serde_json",
  "thiserror",
- "tokio",
- "tokio-stream",
  "tonic",
  "tower-http",
  "tracing",
