@@ -1,0 +1,17 @@
+[package]
+name = "vecgraph-client"
+description = "Client library for vecgraph, providing gRPC client implementation and related utilities."
+readme = "README.md"
+
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+vecgraph-core = { workspace = true }
+vecgraph-proto = { workspace = true }
+async-trait = { workspace = true }
+async-compat = { workspace = true }
+tonic = { workspace = true }

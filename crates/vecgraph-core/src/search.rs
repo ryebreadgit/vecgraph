@@ -16,12 +16,14 @@ pub struct SearchResult {
     pub hit_kind: SearchKind,
 }
 
+#[derive(Clone)]
 pub struct RerankParams {
     pub vector: Vec<f32>,
     pub kind: String,
     pub weight: f32,
 }
 
+#[derive(Clone)]
 pub struct SearchQuery {
     pub search_kind: SearchKind,
     pub query_vec: Vec<f32>,

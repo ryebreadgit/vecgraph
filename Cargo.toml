@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/vecgraph",
     "crates/vecgraph-core",
+    "crates/vecgraph-client",
     "crates/vecgraph-server",
     "crates/vecgraph-store",
     "crates/vecgraph-embed-model2vec",
@@ -21,6 +22,7 @@ repository = "https://github.com/ryebreadgit/vecgraph"
 # Internal
 vecgraph = { path = "crates/vecgraph", version = "0.1.0"  }
 vecgraph-core = { path = "crates/vecgraph-core", version = "0.1.0"  }
+vecgraph-client = { path = "crates/vecgraph-client", version = "0.1.0"  }
 vecgraph-server = { path = "crates/vecgraph-server", version = "0.1.0"  }
 vecgraph-store = { path = "crates/vecgraph-store", version = "0.1.0"  }
 vecgraph-embed-model2vec = { path = "crates/vecgraph-embed-model2vec", version = "0.1.0"  }
@@ -37,6 +39,7 @@ ndarray = "0.17"
 tokenizers = "0.22"
 thiserror = "2"
 async-trait = "0.1"
+async-compat = "0.2"
 model2vec-rs = "0.1"
 pollster = "0.4.0"
 tonic = "0.14"
