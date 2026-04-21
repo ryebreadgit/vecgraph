@@ -45,3 +45,14 @@ impl TryFrom<EdgeWithVector> for vecgraph_core::EdgeWithVector {
         })
     }
 }
+
+impl TryFrom<vecgraph_core::EdgeWithVector> for EdgeWithVector {
+    type Error = VecGraphError;
+
+    fn try_from(core: vecgraph_core::EdgeWithVector) -> Result<Self, Self::Error> {
+        Ok(EdgeWithVector {
+            edge: Some(core.edge.into()),
+            vectors: core.vector,
+        })
+    }
+}

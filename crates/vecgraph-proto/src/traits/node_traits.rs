@@ -55,3 +55,14 @@ impl TryFrom<NodeWithVector> for vecgraph_core::NodeWithVector {
         })
     }
 }
+
+impl TryFrom<vecgraph_core::NodeWithVector> for NodeWithVector {
+    type Error = VecGraphError;
+
+    fn try_from(core: vecgraph_core::NodeWithVector) -> Result<Self, Self::Error> {
+        Ok(NodeWithVector {
+            node: Some(core.node.try_into()?),
+            vectors: core.vector,
+        })
+    }
+}

@@ -29,6 +29,29 @@ impl TryFrom<SearchQuery> for vecgraph_core::SearchQuery {
     }
 }
 
+impl TryFrom<vecgraph_core::SearchQuery> for SearchQuery {
+    type Error = VecGraphError;
+
+    fn try_from(core: vecgraph_core::SearchQuery) -> Result<Self, Self::Error> {
+        let search_kind = SearchKind::from(core.search_kind);
+        let rerank = core.rerank.map(|rp| RerankParams {
+            vectors: rp.vector,
+            kind: rp.kind,
+            weight: rp.weight,
+        });
+
+        Ok(SearchQuery {
+            query_vecs: core.query_vec,
+            top_k: core.top_k as u32,
+            search_kind: search_kind.into(),
+            rerank,
+            exclude_names: core.exclude_names,
+            kind: core.kind,
+            namespace: core.namespace,
+        })
+    }
+}
+
 impl TryFrom<RerankParams> for vecgraph_core::RerankParams {
     type Error = VecGraphError;
 
