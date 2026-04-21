@@ -17,3 +17,5 @@ pub enum VecGraphError {
     #[error("Error: {0}")]
     Other(String),
 }
+
+pub type VecGraphResult<T> = std::result::Result<T, VecGraphError>;

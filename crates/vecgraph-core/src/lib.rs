@@ -7,7 +7,7 @@ mod search;
 mod traits;
 
 pub use edge::{Edge, EdgeId, EdgeWithVector};
-pub use error::VecGraphError;
+pub use error::{VecGraphError, VecGraphResult};
 pub use graph::GraphStore;
 pub use keys::{StorageKey, VectorScanQuery};
 pub use node::{Node, NodeId, NodeWithVector};
