@@ -69,7 +69,7 @@ let results = store
 
 ## Server Binary
 
-The `vecgraph` binary provides a gRPC server for remote access through the `client` feature. Prebuilt binaries are available on the [releases page](https://github.com/ryebreadgit/vecgraph/releases). To run the server, use:
+The `vecgraph-bin` binary provides a gRPC server for remote access through the `client` feature. Prebuilt binaries are available on the [releases page](https://github.com/ryebreadgit/vecgraph/releases). To run the server, use:
 
 ```bash
 vecgraph --listen 0.0.0.0:50051 --database ./my_data
