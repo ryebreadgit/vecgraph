@@ -68,7 +68,10 @@ let results = store
 |------|---------|-------------|
 | `embed-model2vec` | off | Model2Vec embedder via [model2vec-rs](https://github.com/MinishLab/model2vec-rs) |
 | `embed-onnx` | off | ONNX Runtime embedder for custom models |
-| `full` | off | Enables all embedders |
+| `client` | off | Remote client for connecting to a VecGraph server |
+| `server` | off | gRPC server for hosting a VecGraph instance accessible by remote clients |
+| `full` | off | Enables all features (equivalent to `--features "embed-model2vec,embed-onnx,client,server"`). |
+
 
 ## License
 
