@@ -13,6 +13,7 @@
     protolint
     cargo-dist
     git-cliff
+    cargo-workspaces
   ];
 
   # https://devenv.sh/variables/
