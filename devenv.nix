@@ -11,6 +11,8 @@
   packages = with pkgs; [
     protobuf
     protolint
+    cargo-dist
+    git-cliff
   ];
 
   # https://devenv.sh/variables/
