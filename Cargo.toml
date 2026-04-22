@@ -11,6 +11,9 @@ members = [
     "crates/vecgraph-embed-onnx",
     "crates/vecgraph-proto",
 ]
+default-members = [
+    "crates/vecgraph-bin"
+]
 
 [workspace.package]
 version = "0.1.1"

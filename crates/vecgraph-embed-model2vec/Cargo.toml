@@ -12,3 +12,6 @@ repository.workspace = true
 [dependencies]
 vecgraph-core.workspace = true
 model2vec-rs.workspace = true
+
+[package.metadata.dist]
+dist = false
