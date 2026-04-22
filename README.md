@@ -11,19 +11,9 @@ cargo add vecgraph --features embed-model2vec
 ```rust
 use kvwrap::{LocalConfig, LocalStore};
 use vecgraph::{
-    Edge, EdgeWithVector, GraphStore, Node, NodeWithVector, SearchQuery, VecGraphStore,
+    Edge, EdgeWithVector, Node, NodeWithVector, SearchQuery,
+    GraphStore, Embedder, VecGraphStore, Model2VecEmbedder, Model2VecEmbedderSettings,
 };
-
-// Replace with a real embedder - vecgraph ships Model2VecEmbedder and OnnxEmbedder behind the embed-model2vec and embed-onnx feature flags.
-fn embed(text: &str) -> Vec<f32> {
-    let mut v = vec![0.0f32; 64];
-    for (i, b) in text.bytes().enumerate() {
-        v[i % 64] += b as f32;
-    }
-    let norm: f32 = v.iter().map(|x| x * x).sum::<f32>().sqrt();
-    if norm > 0.0 { v.iter_mut().for_each(|x| *x /= norm); }
-    v
-}
 
 // Create a store
 let store = VecGraphStore {
@@ -33,16 +23,23 @@ let store = VecGraphStore {
     })?),
 };
 
+// Intialize embedder (using model2vec in this example)
+let embedder: Arc<dyn Embedder> =
+    Arc::new(Model2VecEmbedder::new(Model2VecEmbedderSettings {
+        model_path: "minishlab/potion-base-8M".to_string(),
+        ..Default::default()
+    })?);
+
 // Insert nodes with vectors
 let alice = Node::new("alice", "person", "Alice", serde_json::json!({ "role": "engineer" }));
 let bob = Node::new("bob", "person", "Bob", serde_json::json!({ "role": "designer" }));
 
-store.insert_node_with_vector(&NodeWithVector::new(alice, embed("alice engineer"))).await?;
-store.insert_node_with_vector(&NodeWithVector::new(bob, embed("bob designer"))).await?;
+store.insert_node_with_vector(&NodeWithVector::new(alice, embedder.embed("alice engineer")?)).await?;
+store.insert_node_with_vector(&NodeWithVector::new(bob, embedder.embed("bob designer")?)).await?;
 
 // Connect nodes with an edge
 let edge = Edge::new("alice", "bob", "collaborates_with", "alice works with bob");
-store.insert_edge_with_vector(&EdgeWithVector::new(edge, embed("alice works with bob"))).await?;
+store.insert_edge_with_vector(&EdgeWithVector::new(edge, embedder.embed("alice works with bob")?)).await?;
 
 // Traverse: outgoing edges from alice
 let outgoing = store.get_edges_for_node(&"alice".into()).await?;
@@ -56,7 +53,7 @@ let incoming = store.get_edges_targeting_node(&"bob".into()).await?;
 
 // Vector search across nodes
 let results = store
-    .search(&SearchQuery::new(embed("engineer"), "node", "person", 5))
+    .search(&SearchQuery::new(embedder.embed("engineer")?, "node", "person", 5))
     .await?;
 ```
 
@@ -69,6 +66,24 @@ let results = store
 | `client` | off | Remote client for connecting to a VecGraph server |
 | `server` | off | gRPC server for hosting a VecGraph instance accessible by remote clients |
 | `full` | off | Enables all features (equivalent to `--features "embed-model2vec,embed-onnx,client,server"`). |
+
+## Server Binary
+
+The `vecgraph` binary provides a gRPC server for remote access through the `client` feature. Prebuilt binaries are available on the [releases page](https://github.com/ryebreadgit/vecgraph/releases). To run the server, use:
+
+```bash
+vecgraph --listen 0.0.0.0:50051 --database ./my_data
+```
+
+All options can also be set via environment variables:
+
+| Flag | Env Var | Default | Description |
+|------|---------|---------|-------------|
+| `--listen` | `VECGRAPH_LISTEN_ADDR` | `0.0.0.0:50051` | Address and port to bind |
+| `--database` | `VECGRAPH_DATA_PATH` | `.vecgraph_data/` | Storage directory (or remote URI) |
+| `--database-cache-size` | `VECGRAPH_DATABASE_CACHE_SIZE` | `67108864` (64 MiB) | In-memory cache size in bytes |
+| `--is-db-remote` | `VECGRAPH_IS_DATABASE_REMOTE` | `false` | Treat `--database` as a remote address |
+| `--verbose` | `VECGRAPH_VERBOSE` | `false` | Enable verbose logging |
 
 ## Examples
 
