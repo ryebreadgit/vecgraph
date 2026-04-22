@@ -1,0 +1,22 @@
+[package]
+name = "vecgraph-bin"
+readme = "README.md"
+
+publish = false
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "vecgraph"
+path = "src/main.rs"
+
+[dependencies]
+vecgraph = { workspace = true, features = ["server"] }
+kvwrap.workspace = true
+clap.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

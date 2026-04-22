@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/vecgraph",
+    "crates/vecgraph-bin",
     "crates/vecgraph-core",
     "crates/vecgraph-client",
     "crates/vecgraph-server",
@@ -21,7 +22,7 @@ repository = "https://github.com/ryebreadgit/vecgraph"
 [workspace.dependencies]
 # Internal
 vecgraph = { path = "crates/vecgraph", version = "0.1.0"  }
-vecgraph-core = { path = "crates/vecgraph-core", version = "0.1.0"  }
+vecgraph-core = { path = "crates/vecgraph-core", version = "0.1.0", default-features = false  }
 vecgraph-client = { path = "crates/vecgraph-client", version = "0.1.0"  }
 vecgraph-server = { path = "crates/vecgraph-server", version = "0.1.0"  }
 vecgraph-store = { path = "crates/vecgraph-store", version = "0.1.0"  }
@@ -30,7 +31,7 @@ vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx", version = "0.1.0"  
 vecgraph-proto = { path = "crates/vecgraph-proto", version = "0.1.0"  }
 
 # External
-kvwrap = "0.1.1"
+kvwrap = { version = "0.1.1", features = ["client"] }
 bytemuck = "1.25"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -47,7 +48,10 @@ tonic-prost-build = "0.14"
 tonic-prost = "0.14"
 prost = "0.14"
 tracing = "0.1"
+tracing-subscriber = "0.3"
 tower-http = { version = "0.6", features = ["trace"] }
+tokio = { version = "1.52", features = ["rt-multi-thread", "macros"] }
+clap = { version = "4.6", features = ["derive", "env"] }
 
 [profile.release]
 opt-level = "z"
