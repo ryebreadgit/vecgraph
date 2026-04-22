@@ -34,7 +34,7 @@ vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx", version = "0.1.1"  
 vecgraph-proto = { path = "crates/vecgraph-proto", version = "0.1.1"  }
 
 # External
-kvwrap = { version = "0.1.1", features = ["client"] }
+kvwrap = { version = "0.1.2", features = ["client"] }
 bytemuck = "1.25"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
