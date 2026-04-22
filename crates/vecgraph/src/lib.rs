@@ -6,3 +6,9 @@ pub use vecgraph_embed_onnx::*;
 
 #[cfg(feature = "embed-model2vec")]
 pub use vecgraph_embed_model2vec::*;
+
+#[cfg(feature = "server")]
+pub use vecgraph_server::*;
+
+#[cfg(feature = "client")]
+pub use vecgraph_client::*;

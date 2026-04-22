@@ -13,13 +13,17 @@ repository.workspace = true
 default = []
 embed-onnx = ["dep:vecgraph-embed-onnx"]
 embed-model2vec = ["dep:vecgraph-embed-model2vec"]
-full = ["embed-onnx", "embed-model2vec"]
+server = ["dep:vecgraph-server"]
+client = ["dep:vecgraph-client"]
+full = ["embed-onnx", "embed-model2vec", "server", "client"]
 
 [dependencies]
 vecgraph-core.workspace = true
 vecgraph-store.workspace = true
 vecgraph-embed-onnx = { workspace = true, optional = true }
 vecgraph-embed-model2vec = { workspace = true, optional = true }
+vecgraph-server = { workspace = true, optional = true }
+vecgraph-client = { workspace = true, optional = true }
 
 [dev-dependencies]
 kvwrap.workspace = true
