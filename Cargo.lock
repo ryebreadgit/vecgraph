@@ -2746,7 +2746,7 @@ checksum = "8f54a172d0620933a27a4360d3db3e2ae0dd6cceae9730751a036bbf182c4b23"
 
 [[package]]
 name = "vecgraph"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "kvwrap",
  "pollster",
@@ -2761,7 +2761,7 @@ dependencies = [
 
 [[package]]
 name = "vecgraph-bin"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap",
  "kvwrap",
@@ -2773,7 +2773,7 @@ dependencies = [
 
 [[package]]
 name = "vecgraph-client"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-compat",
  "async-trait",
@@ -2784,7 +2784,7 @@ dependencies = [
 
 [[package]]
 name = "vecgraph-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-trait",
  "serde",
@@ -2794,7 +2794,7 @@ dependencies = [
 
 [[package]]
 name = "vecgraph-embed-model2vec"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "model2vec-rs",
  "vecgraph-core",
@@ -2802,7 +2802,7 @@ dependencies = [
 
 [[package]]
 name = "vecgraph-embed-onnx"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "ndarray 0.17.2",
  "ort",
@@ -2812,7 +2812,7 @@ dependencies = [
 
 [[package]]
 name = "vecgraph-proto"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "prost",
  "serde",
@@ -2825,7 +2825,7 @@ dependencies = [
 
 [[package]]
 name = "vecgraph-server"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "thiserror",
  "tonic",
@@ -2837,7 +2837,7 @@ dependencies = [
 
 [[package]]
 name = "vecgraph-store"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-trait",
  "bytemuck",

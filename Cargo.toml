@@ -13,7 +13,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 authors = ["RyeBread <info@rye.moe>"]
 license = "MIT"
@@ -21,14 +21,14 @@ repository = "https://github.com/ryebreadgit/vecgraph"
 
 [workspace.dependencies]
 # Internal
-vecgraph = { path = "crates/vecgraph", version = "0.1.0"  }
-vecgraph-core = { path = "crates/vecgraph-core", version = "0.1.0", default-features = false  }
-vecgraph-client = { path = "crates/vecgraph-client", version = "0.1.0"  }
-vecgraph-server = { path = "crates/vecgraph-server", version = "0.1.0"  }
-vecgraph-store = { path = "crates/vecgraph-store", version = "0.1.0"  }
-vecgraph-embed-model2vec = { path = "crates/vecgraph-embed-model2vec", version = "0.1.0"  }
-vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx", version = "0.1.0"  }
-vecgraph-proto = { path = "crates/vecgraph-proto", version = "0.1.0"  }
+vecgraph = { path = "crates/vecgraph", version = "0.1.1"  }
+vecgraph-core = { path = "crates/vecgraph-core", version = "0.1.1", default-features = false  }
+vecgraph-client = { path = "crates/vecgraph-client", version = "0.1.1"  }
+vecgraph-server = { path = "crates/vecgraph-server", version = "0.1.1"  }
+vecgraph-store = { path = "crates/vecgraph-store", version = "0.1.1"  }
+vecgraph-embed-model2vec = { path = "crates/vecgraph-embed-model2vec", version = "0.1.1"  }
+vecgraph-embed-onnx = { path = "crates/vecgraph-embed-onnx", version = "0.1.1"  }
+vecgraph-proto = { path = "crates/vecgraph-proto", version = "0.1.1"  }
 
 # External
 kvwrap = { version = "0.1.1", features = ["client"] }
